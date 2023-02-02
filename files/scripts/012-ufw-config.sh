@@ -7,4 +7,7 @@ ufw limit ssh
 ufw allow 443/tcp
 ufw allow 80/tcp
 
+# Disable external access to PostgresSQL
+ufw deny 5432
+
 ufw --force enable
