@@ -1,0 +1,42 @@
+on:
+  release:
+    types: [published]
+
+jobs:
+  packer_release:
+    runs-on: ubuntu-latest
+    name: packer
+    permissions:
+      contents: "read"
+      id-token: "write"
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set outputs
+        id: vars
+        run: echo "::set-output name=release_char::$(printf ${{ github.event.release.name }} | tail -c 1)"
+
+      - name: Validate Template
+        uses: hashicorp/packer-github-actions@master
+        with:
+          command: validate
+          arguments: -syntax-only
+          target: template.pkr.hcl
+
+      - name: Install plugins
+        uses: hashicorp/packer-github-actions@master
+        with:
+          command: init
+          target: template.pkr.hcl
+
+      - name: Build Artifact
+        uses: hashicorp/packer-github-actions@master
+        with:
+          command: build
+          arguments: "-color=false -on-error=abort"
+          target: template.pkr.hcl
+        env:
+          AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
