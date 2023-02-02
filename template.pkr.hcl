@@ -7,8 +7,24 @@ packer {
   }
 }
 
+variable "coder_version" {
+  type = string
+}
+
+variable "extra_version" {
+  type    = string
+  default = ""
+}
+
 source "amazon-ebs" "ubuntu" {
-  ami_name      = "coder"
+  ami_name      = "coder-v${var.coder_version}${var.extra_version}"
+  description   = <<EOF
+  Coder v${var.coder_version}${var.extra_version}: Self-Hosted Remote Development Environments
+
+  Ubuntu 22.04 AMI with Coder pre-installed, Docker, and TLS public tunnel.
+
+  https://github.com/coder/packer-images
+  EOF
   instance_type = "t2.large"
   region        = "us-east-1"
   source_ami_filter {
@@ -21,6 +37,10 @@ source "amazon-ebs" "ubuntu" {
     owners      = ["099720109477"]
   }
   ssh_username = "ubuntu"
+  tags = {
+    Name       = "Coder"
+    OS_Version = "Ubuntu"
+  }
 }
 
 build {
@@ -60,7 +80,7 @@ build {
 
 
   provisioner "shell" {
-    environment_vars = ["DEBIAN_FRONTEND=noninteractive", "LC_ALL=C", "LANG=en_US.UTF-8", "LC_CTYPE=en_US.UTF-8"]
+    environment_vars = ["VERSION=${var.coder_version}", "DEBIAN_FRONTEND=noninteractive", "LC_ALL=C", "LANG=en_US.UTF-8", "LC_CTYPE=en_US.UTF-8"]
     scripts = [
       "files/scripts/010-docker.sh",
       "files/scripts/011-grub-opts.sh",

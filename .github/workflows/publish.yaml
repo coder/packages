@@ -1,6 +1,15 @@
 on:
   release:
     types: [published]
+  workflow_dispatch:
+    coder_version:
+      description: 'Coder Version'     
+      required: true
+      default: 'x.x.x'
+    extra_version:
+      description: 'Extra version (to amend AMI)'
+      default: ''
+      required: false
 
 jobs:
   packer_release:
@@ -38,5 +47,7 @@ jobs:
           arguments: "-color=false -on-error=abort"
           target: template.pkr.hcl
         env:
+          PKR_VAR_coder_version: ${{ github.event.inputs.coder_version }}
+          PKR_VAR_extra_version: ${{ github.event.inputs.extra_version }}
           AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
