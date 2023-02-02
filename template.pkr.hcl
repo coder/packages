@@ -17,16 +17,16 @@ variable "extra_version" {
 }
 
 source "amazon-ebs" "ubuntu" {
-  ami_name      = "coder-v${var.coder_version}${var.extra_version}"
-  description   = <<EOF
+  ami_name        = "coder-v${var.coder_version}${var.extra_version}"
+  ami_description = <<EOF
   Coder v${var.coder_version}${var.extra_version}: Self-Hosted Remote Development Environments
 
   Ubuntu 22.04 AMI with Coder pre-installed, Docker, and TLS public tunnel.
 
   https://github.com/coder/packer-images
   EOF
-  instance_type = "t2.large"
-  region        = "us-east-1"
+  instance_type   = "t2.large"
+  region          = "us-east-1"
   source_ami_filter {
     filters = {
       name                = "ubuntu/images/*ubuntu-jammy-22.04-amd64-server-*"
