@@ -2,14 +2,15 @@ on:
   release:
     types: [published]
   workflow_dispatch:
-    coder_version:
-      description: 'Coder Version'     
-      required: true
-      default: 'x.x.x'
-    extra_version:
-      description: 'Extra version (to amend AMI)'
-      default: ''
-      required: false
+    inputs:
+      coder_version:
+        description: 'Coder Version'     
+        required: true
+        default: 'x.x.x'
+      extra_version:
+        description: 'Extra version (to amend AMI)'
+        default: ''
+        required: false
 
 jobs:
   packer_release:
