@@ -97,5 +97,9 @@ build {
     scripts          = ["files/scripts/999-cleanup.sh"]
     execute_command  = "echo 'packer' | sudo -S env {{ .Vars }} {{ .Path }}"
   }
-}
 
+  # Store details in packer-manifest.json
+  # to retrieve AMI
+  post-processor "manifest" {
+  }
+}
