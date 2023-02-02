@@ -1,6 +1,6 @@
 # Coder Packages
 
-Install [Coder](https://github.com/coder/coder) to your preferred cloud with one click.
+Install [Coder](https://github.com/coder/coder) to your preferred cloud with a pre-built package.
 
 | Logo                                       | Platform Name         | Status      | Documentation                                                                                                                          | Deploy                                             |
 | ------------------------------------------ | --------------------- | ----------- | -------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
