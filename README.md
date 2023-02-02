@@ -2,7 +2,7 @@
 
 Install [Coder](https://github.com/coder/coder) to your preferred cloud with one click.
 
-| Logo                                       | Platform              | Status      | Documentation                                                                                                                          | Deploy                                             |
+| Logo                                       | Platform Name         | Status      | Documentation                                                                                                                          | Deploy                                             |
 | ------------------------------------------ | --------------------- | ----------- | -------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
 | ![AWS EC2 Logo](./assets/ec2.svg)          | AWS EC2               | In progress | [Quickstart: AWS](https://coder.com/docs/v2/latest/quickstart/aws)                                                                     | [Deploy from AWS Marketplace](https://example.com) |
 | ![AWS EKS Logo](./assets/eks.svg)          | AWS EKS               | Planned     | [Docs: Coder on Kubernetes](https://coder.com/docs/v2/latest/install/kubernetes)                                                       | [Deploy from AWS Marketplace](https://example.com) |
