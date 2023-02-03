@@ -11,15 +11,19 @@ variable "coder_version" {
   type = string
 }
 
+local "safe_version" {
+  expression = replace(var.coder_version, "v", "")
+}
+
 variable "append_version" {
   type    = string
   default = ""
 }
 
 source "amazon-ebs" "ubuntu" {
-  ami_name        = "coder-v${var.coder_version}${var.append_version}"
+  ami_name        = "coder-v${local.safe_version}${var.append_version}"
   ami_description = <<EOF
-  Coder v${var.coder_version}${var.append_version}: Self-Hosted Remote Development Environments
+  Coder v${local.safe_version}${var.append_version}: Self-Hosted Remote Development Environments
 
   Ubuntu 22.04 AMI with Coder pre-installed, Docker, and TLS public tunnel.
 
@@ -80,7 +84,7 @@ build {
 
 
   provisioner "shell" {
-    environment_vars = ["VERSION=${var.coder_version}", "DEBIAN_FRONTEND=noninteractive", "LC_ALL=C", "LANG=en_US.UTF-8", "LC_CTYPE=en_US.UTF-8"]
+    environment_vars = ["VERSION=${local.safe_version}", "DEBIAN_FRONTEND=noninteractive", "LC_ALL=C", "LANG=en_US.UTF-8", "LC_CTYPE=en_US.UTF-8"]
     scripts = [
       "files/scripts/010-docker.sh",
       "files/scripts/011-grub-opts.sh",
