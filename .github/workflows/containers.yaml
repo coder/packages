@@ -1,0 +1,72 @@
+on:
+  repository_dispatch:
+    types: [coder-release]
+  workflow_dispatch:
+    inputs:
+      coder_version:
+        description: 'Coder Version'     
+        required: true
+        default: 'x.x.x'
+      append_version:
+        description: 'Append version (e.g. ".1")'
+        default: ''
+        required: false
+jobs:
+  eks_release:
+    runs-on: ubuntu-latest
+    name: packer
+    permissions:
+      contents: "read"
+      id-token: "write"
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set packer variables (repository_dispatch)
+        if: github.event_name == 'repository_dispatch'
+        run: |
+          unsafe_coder_version="${{ github.event.client_payload.coder_version }}"
+          safe_coder_version="${unsafe_coder_version/v/""}"
+          echo "coder_version=$safe_coder_version" >> "$GITHUB_ENV"
+          echo "append_version=${{ github.event.client_payload.append_version }}" >> "$GITHUB_ENV"
+
+      - name: Set packer variables (workflow_dispatch)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          unsafe_coder_version="${{ github.event.client_payload.coder_version }}"
+          safe_coder_version="${unsafe_coder_version/v/""}"
+          echo "coder_version=$safe_coder_version" >> "$GITHUB_ENV"
+          echo "append_version=${{ github.event.inputs.append_version }}" >> "$GITHUB_ENV"
+        
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Login to Amazon ECR Public
+        id: login-ecr-public
+        uses: aws-actions/amazon-ecr-login@v1
+        with:
+          registry-type: public
+      - name: Build, tag, and push docker image to Amazon ECR Public
+        run: |
+          ecr_location=public.ecr.aws/m2t7e1w5/coder-v2:v${{ env.coder_version }}
+          docker pull ghcr.io/coder/coder:v${{ env.coder_version }}
+          docker tag ghcr.io/coder/coder:v0.16.0 $ecr_location
+          docker push $ecr_location
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+      - name: Build, tag, and push docker image to Amazon ECR Private
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ env.coder_version }}
+        run: |
+          ecr_location=816024705881.dkr.ecr.us-east-1.amazonaws.com/coder:v0.16.0
+          docker pull ghcr.io/coder/coder:v${{ env.coder_version }}
+          docker tag ghcr.io/coder/coder:v0.16.0 $ecr_location
+          docker push $ecr_location
