@@ -11,15 +11,15 @@ variable "coder_version" {
   type = string
 }
 
-variable "extra_version" {
+variable "append_version" {
   type    = string
   default = ""
 }
 
 source "amazon-ebs" "ubuntu" {
-  ami_name        = "coder-v${var.coder_version}${var.extra_version}"
+  ami_name        = "coder-v${var.coder_version}${var.append_version}"
   ami_description = <<EOF
-  Coder v${var.coder_version}${var.extra_version}: Self-Hosted Remote Development Environments
+  Coder v${var.coder_version}${var.append_version}: Self-Hosted Remote Development Environments
 
   Ubuntu 22.04 AMI with Coder pre-installed, Docker, and TLS public tunnel.
 
