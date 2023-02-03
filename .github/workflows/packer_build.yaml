@@ -8,7 +8,7 @@ on:
         required: true
         default: 'x.x.x'
       append_version:
-        description: 'Extra version (to amend AMI)'
+        description: 'Append version (e.g. ".1")'
         default: ''
         required: false
 
