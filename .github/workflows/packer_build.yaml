@@ -1,6 +1,6 @@
 on:
-  release:
-    types: [published]
+  repository_dispatch:
+    types: [coder-release]
   workflow_dispatch:
     inputs:
       coder_version:
@@ -24,9 +24,17 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Set outputs
-        id: vars
-        run: echo "::set-output name=release_char::$(printf ${{ github.event.release.name }} | tail -c 1)"
+      - name: Set packer variables (repository_dispatch)
+        if: github.event_name == 'repository_dispatch'
+        run: |
+          echo "PKR_VAR_coder_version=${{ github.event.client_payload.coder_version }}" >> "$GITHUB_ENV"
+          echo "PKR_VAR_extra_version=${{ github.event.client_payload.extra_version }}" >> "$GITHUB_ENV"
+
+      - name: Set packer variables (workflow_dispatch)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          echo "PKR_VAR_coder_version=${{ github.event.inputs.coder_version }}" >> "$GITHUB_ENV"
+          echo "PKR_VAR_extra_version=${{ github.event.inputs.extra_version }}" >> "$GITHUB_ENV"
 
       - name: Validate Template
         uses: hashicorp/packer-github-actions@master
@@ -47,8 +55,6 @@ jobs:
           command: build
           arguments: "-color=false -on-error=abort"
           target: template.pkr.hcl
-        env:
-          PKR_VAR_coder_version: ${{ github.event.inputs.coder_version }}
-          PKR_VAR_extra_version: ${{ github.event.inputs.extra_version }}
+        env:          
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
