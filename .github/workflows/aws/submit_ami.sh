@@ -1,11 +1,11 @@
 #!/bin/bash
 
 if [ -z "$AMI_ID" ]; then
-  $AMI_ID=$(cat packer-manifest.json | jq -r '.builds[] | select(.builder_type=="amazon-ebs").artifact_id' | cut -f2 -d":")
+  AMI_ID=$(cat ./packer-manifest.json | jq -r '.builds[] | select(.builder_type=="amazon-ebs").artifact_id' | cut -f2 -d":")
 fi
 
-if [ -z "$ACCESS_ROLE_ARN" ]; then
-  echo "\$ACCESS_ROLE_ARN not specified."
+if [ -z "$MARKETPLACE_ACCESS_ROLE_ARN" ]; then
+  echo "\$MARKETPLACE_ACCESS_ROLE_ARN not specified."
   exit 1
 fi
 
@@ -13,6 +13,8 @@ if [ -z "$VERSION" ]; then
   echo "\$VERSION not specified."
   exit 1
 fi
+
+SAFE_VERSION="${VERSION/v/""}"
 
 if [ -z "$PRODUCT_IDENTIFIER" ]; then
   echo "\$PRODUCT_IDENTIFIER not specified."
@@ -23,8 +25,8 @@ fi
 DETAILS_JSON_AS_STRING=$(echo '
 {
   "Version": {
-    "VersionTitle": "Coder '$VERSION'",
-    "ReleaseNotes": "Updated to Coder '$VERSION'"
+    "VersionTitle": "Coder '$SAFE_VERSION'",
+    "ReleaseNotes": "Updated to Coder '$SAFE_VERSION'"
   },
   "DeliveryOptions": [
     {
@@ -32,7 +34,7 @@ DETAILS_JSON_AS_STRING=$(echo '
         "AmiDeliveryOptionDetails": {
           "AmiSource": {
             "AmiId": "'$AMI_ID'",
-            "AccessRoleArn": "'$ACCESS_ROLE_ARN'",
+            "AccessRoleArn": "'$MARKETPLACE_ACCESS_ROLE_ARN'",
             "UserName": "ubuntu",
             "OperatingSystemName": "Ubuntu",
             "OperatingSystemVersion": "22.04"

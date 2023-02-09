@@ -58,3 +58,16 @@ jobs:
         env:          
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      # Commented out since auto-submit won't work until the marketplace app
+      # is approved:
+      #
+      # - name: Submit AMI to AWS Marketplace
+      #   run: ./github/workflows/aws/submit_ami.sh
+      #   env:
+      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     AWS_DEFAULT_REGION: us-east-1
+      #     VERSION: ${{ env.PKR_VAR_coder_version }}
+      #     MARKETPLACE_ACCESS_ROLE_ARN: ${{ secrets.MARKETPLACE_ACCESS_ROLE_ARN }}
+      #     PRODUCT_IDENTIFIER: ${{ secrets.PRODUCT_IDENTIFIER }}
