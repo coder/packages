@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ -z "$AMI_ID" ]; then
-  AMI_ID=$(cat ./packer-manifest.json | jq -r '.builds[] | select(.builder_type=="amazon-ebs").artifact_id' | cut -f2 -d":")
+  AMI_ID=$(cat ./packer-manifest.json | jq -r '.builds[-1] | select(.builder_type=="amazon-ebs").artifact_id' | cut -f2 -d":")
 fi
 
 if [ -z "$MARKETPLACE_ACCESS_ROLE_ARN" ]; then
