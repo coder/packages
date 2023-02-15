@@ -4,10 +4,6 @@ if [ -z "$AMI_ID" ]; then
   AMI_ID=$(cat ./packer-manifest.json | jq -r 'last(.builds[] | select(.builder_type=="amazon-ebs").artifact_id)' | cut -f2 -d":")
 fi
 
-echo $AMI_ID
-
-exit 1
-
 if [ -z "$MARKETPLACE_ACCESS_ROLE_ARN" ]; then
   echo "\$MARKETPLACE_ACCESS_ROLE_ARN not specified."
   exit 1
