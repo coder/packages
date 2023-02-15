@@ -26,6 +26,10 @@ chmod 600 /etc/ssh/revoked_keys
 # For AWS security scans
 rm -f /home/ubuntu/.ssh/authorized_keys
 
+# Ensure / filesystem is owned by root
+chown root:root /
+chmod o-w /
+
 # Securely erase the unused portion of the filesystem
 GREEN='\033[0;32m'
 NC='\033[0m'
