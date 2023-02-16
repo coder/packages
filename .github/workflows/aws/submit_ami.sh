@@ -36,7 +36,7 @@ DETAILS_JSON_AS_STRING=$(echo '
             "AmiId": "'$AMI_ID'",
             "AccessRoleArn": "'$MARKETPLACE_ACCESS_ROLE_ARN'",
             "UserName": "ubuntu",
-            "OperatingSystemName": "Ubuntu",
+            "OperatingSystemName": "UBUNTU",
             "OperatingSystemVersion": "22.04"
           },
           "UsageInstructions": "See https://coder.com/docs/v2/latest/quickstart/aws for usage instructions.",
