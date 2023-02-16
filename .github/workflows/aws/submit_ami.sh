@@ -25,7 +25,7 @@ fi
 DETAILS_JSON_AS_STRING=$(echo '
 {
   "Version": {
-    "VersionTitle": "Coder '$SAFE_VERSION'",
+    "VersionTitle": "'$SAFE_VERSION'",
     "ReleaseNotes": "Updated to Coder '$SAFE_VERSION'"
   },
   "DeliveryOptions": [
