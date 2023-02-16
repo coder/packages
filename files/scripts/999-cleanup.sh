@@ -30,6 +30,9 @@ rm -f /home/ubuntu/.ssh/authorized_keys
 chown root:root /
 chmod o-w /
 
+# Clean up Coder cache
+rm -rf /home/coder/.config
+
 # Securely erase the unused portion of the filesystem
 GREEN='\033[0;32m'
 NC='\033[0m'
