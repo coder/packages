@@ -14,7 +14,7 @@ on:
 jobs:
   eks_release:
     runs-on: ubuntu-latest
-    name: packer
+    name: eks_release
     permissions:
       contents: "read"
       id-token: "write"
