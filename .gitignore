@@ -1,2 +1,3 @@
 .env
 packer-manifest.json
+coder_helm_*.tgz
