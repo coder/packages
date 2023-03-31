@@ -1,0 +1,25 @@
+# Coder Servive
+services:
+  - type: web
+    name: coder
+    env: docker
+    autoDeploy: false
+    plan: starter
+    rootDir: render
+    dockerfilePath: ./render/Dockerfile
+    dockerContext: ./render
+    healthCheckPath: /healthz
+    envVars:
+      - key: CODER_PG_CONNECTION_URL
+        fromDatabase:
+          name: coder
+          property: connectionString
+      - key: RENDER_HOST
+        fromService:
+          name: coder
+          type: web
+          property: host
+# Postgress Datbase
+databases:
+  - name: coder
+    postgresMajorVersion: 15
