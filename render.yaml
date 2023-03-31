@@ -6,8 +6,6 @@ services:
     autoDeploy: false
     plan: starter
     rootDir: render
-    dockerfilePath: ./render/Dockerfile
-    dockerContext: ./render
     healthCheckPath: /healthz
     envVars:
       - key: CODER_PG_CONNECTION_URL
