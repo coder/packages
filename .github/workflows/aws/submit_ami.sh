@@ -39,7 +39,7 @@ DETAILS_JSON_AS_STRING=$(echo '
             "OperatingSystemName": "UBUNTU",
             "OperatingSystemVersion": "22.04"
           },
-          "UsageInstructions": "See https://coder.com/docs/v2/latest/quickstart/aws for usage instructions.",
+          "UsageInstructions": "See https://coder.com/docs/v2/latest/platforms/aws for usage instructions.",
           "RecommendedInstanceType": "t2.xlarge",
           "SecurityGroups": [
             {
