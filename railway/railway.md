@@ -61,4 +61,4 @@ Choose a template to set up your first workspace. You can also [create your own 
 
 - [**Coder GitHub Action**](https://github.com/marketplace/actions/update-coder-template): A GitHub Action that updates Coder templates
 - [**Various Templates**](https://github.com/coder/coder/examples/templates/community-templates.md): Hetzner Cloud, Docker in Docker, and other templates the community has built.
-- - [![Coder discord](https://img.shields.io/discord/747933592273027093?label=discord)](https://discord.gg/coder)
+- [![Coder discord](https://img.shields.io/discord/747933592273027093?label=discord)](https://discord.gg/coder)
