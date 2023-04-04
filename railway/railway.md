@@ -28,9 +28,9 @@ https://railway.app/template/cUQ8_P?referralCode=tfH8Uw
 
 The current version of the template allows you to set an optional environment variable `CODER_WILDCARD_ACCESS_URL` which will allow you to forward ports from your workspace to a custom wildcard subdomain of the URL you provide. This is useful if you want to access a service running in your workspace from a browser. For example, if you set `CODER_WILDCARD_ACCESS_URL` to `*.coder.example.com`, you can access a service running on port 8080 in your workspace by visiting `8080--app-name-workspace-name-.coder.example.com` in your browser.
 
-&gt; Note: This is an optional step. If you do not set this variable, you will not be able to access services running in your workspace from a browser. For more information.
+> Note: This is an optional step. If you do not set this variable, you will not be able to access services running in your workspace from a browser. For more information. You have to use a custom domain with Railway and cannot use railway's built-in domain for this wildcard.
 
-&gt; You can later add more environment variables by going to Dashboard &gt; Coder (Service) &gt; Settings &gt; Environment Variables. See [this](https://coder.com/docs/v2/latest/cli/server) for more information on environment variables that can be set.
+> Note: You can set environment variables by going to _Dashboard &gt; Coder (Service) &gt; Settings &gt; Environment Variables_. See our [docs](https://coder.com/docs/v2/latest/cli/server) for more information on environment variables that can be set.
 
 ### 2. Attach a custom domain
 
@@ -54,28 +54,11 @@ Choose a template to set up your first workspace. You can also [create your own 
 [**Workspaces**](https://coder.com/docs/v2/latest/workspaces): Workspaces contain the IDEs, dependencies, and configuration information needed for software development. You can create workspaces from templates. Here wea are showing the workspaces created from the Fly.io starter template in action.
 ![fly.io workspace](https://raw.githubusercontent.com/coder/blogs/coder-on-railway/posts/coder-on-railway/static/fly_workspace.png)
 
-## Documentation
-
-Browse our [**docs**](https://coder.com/docs/v2) or visit a specific section below:
-
-[**Templates**](https://coder.com/docs/v2/latest/templates) | [**Workspaces**](https://coder.com/docs/v2/latest/workspaces) | [**IDEs**](https://coder.com/docs/v2/latest/ides) | [**Administration**](https://coder.com/docs/v2/latest/admin) | [**Enterprise**](https://coder.com/docs/v2/latest/enterprise)
-
-## Community and Support
-
-Feel free to [open an issue](https://github.com/coder/coder/issues/new) if you have questions, run into bugs, or have a feature request.
-
-[Join our Discord](https://discord.gg/coder) to provide feedback on in-progress features, and chat with the community using Coder! [![discord](https://img.shields.io/discord/747933592273027093?label=discord)](https://discord.gg/coder)
-
-## Related
-
-We are always working on new integrations. Feel free to open an issue to request an integration. Contributions are welcome in any official or community repositories.
-
-### Official
-
+- [**Coder on GitHub**](https://github.com/coder/coder)
+- [**Coder docs**](https://coder.com/docs/v2)
 - [**VS Code Extension**](https://marketplace.visualstudio.com/items?itemName=coder.coder-remote): Open any Coder workspace in VS Code with a single click
 - [**JetBrains Gateway Extension**](https://plugins.jetbrains.com/plugin/19620-coder): Open any Coder workspace in JetBrains Gateway with a single click
 
-### Community
-
 - [**Coder GitHub Action**](https://github.com/marketplace/actions/update-coder-template): A GitHub Action that updates Coder templates
 - [**Various Templates**](https://github.com/coder/coder/examples/templates/community-templates.md): Hetzner Cloud, Docker in Docker, and other templates the community has built.
+- - [![Coder discord](https://img.shields.io/discord/747933592273027093?label=discord)](https://discord.gg/coder)
