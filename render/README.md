@@ -44,6 +44,14 @@ Coder allows you to set an optional environment variable, `CODER_WILDCARD_ACCESS
 
 > Note: You can set environment variables by going to _Dashboard &gt; Coder (Service) &gt; Settings &gt; Environment &gt; Environment Variables_. See our [docs](https://coder.com/docs/v2/latest/cli/server) for more information on environment variables that can be set.
 
+## Upgrade
+
+Coder is getting new features and improvmnets constantly and its it is suggested to stay on latest version. To upgrade,
+
+Go to  _Dashboard &gt; Coder (Service)_ and do a **Manual Deploy**. or alternativly turn on auto deployments in  _Dashboard &gt; Coder (Service) &gt; Settings &gt; Build & Deploy &gt; Auto Deploy_.
+
+## Docs and resources
+
 - [**Coder on GitHub**](https://github.com/coder/coder)
 - [**Coder docs**](https://coder.com/docs/v2)
 - [**VS Code Extension**](https://marketplace.visualstudio.com/items?itemName=coder.coder-remote): Open any Coder workspace in VS Code with a single click
