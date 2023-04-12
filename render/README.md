@@ -17,7 +17,7 @@ The current version of the template allows you to set an optional environment va
 
 ### 2. Attach a custom domain
 
-Your Coder deployment will always be accessible at `https://app-name.up.railway.app`. If you want to use a custom domain, you can go to Dashboard &gt; Coder (Service) &gt; Settings &gt; Custom Domains and add your domain and optionally a wildcard subdomain if you specified `CODER_WILDCARD_ACCESS_URL` in the previous step.
+Your Coder deployment will always be accessible at `https://app-name.onrender.com`. If you want to use a custom domain, you can go to Dashboard &gt; Coder (Service) &gt; Settings &gt; Custom Domains and add your domain and optionally a wildcard subdomain if you specified `CODER_WILDCARD_ACCESS_URL` in the previous step.
 
 ### 3. Create your first user
 
