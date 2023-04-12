@@ -17,6 +17,8 @@ services:
           name: coder
           type: web
           property: host
+      - key: CODER_WILDCARD_ACCESS_URL
+        sync: false
 # Postgress Datbase
 databases:
   - name: coder
