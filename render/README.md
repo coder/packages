@@ -7,23 +7,15 @@
 
 ## Quickstart
 
-### 1. Fill the environment variables
+### 1. Deploy using the Deploy on Render Button
 
-The current version of the template allows you to set an optional environment variable, `CODER_WILDCARD_ACCESS_URL` which will allow you to forward ports from your workspace to a custom wildcard subdomain of the URL you provide. This is useful if you want to access a service running in your workspace from a browser. For example, if you set `CODER_WILDCARD_ACCESS_URL` to `*.coder.example.com`, you can access a service running on port 8080 in your workspace by visiting `8080--app-name-workspace-name-.coder.example.com` in your browser.
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/coder/packages)
 
-> Note: This is an optional step. If you do not set this variable, you cannot access services running in your workspace from a browser. You must use a custom domain with Render and cannot use Render's built-in domain for this wildcard.
-
-> Note: You can set environment variables by going to _Dashboard &gt; Coder (Service) &gt; Settings &gt; Environment Variables_. See our [docs](https://coder.com/docs/v2/latest/cli/server) for more information on environment variables that can be set.
-
-### 2. Attach a custom domain
-
-Your Coder deployment will always be accessible at `https://app-name.onrender.com`. If you want to use a custom domain, you can go to Dashboard &gt; Coder (Service) &gt; Settings &gt; Custom Domains and add your domain and optionally a wildcard subdomain if you specified `CODER_WILDCARD_ACCESS_URL` in the previous step.
-
-### 3. Create your first user
+### 2. Create your first user
 
 Create your first user by going to `https://app-name.onrender.com` or your custom domain.
 
-![Welcome to Coder](https://raw.githubusercontent.com/coder/blogs/main/posts/coder-on-railway/static/coder_setup.png)
+![Set up first user](https://user-images.githubusercontent.com/10648092/231393279-78a7eb27-ff93-4560-bdf1-f43c385a27c2.png)
 
 ### 3. Create your first template
 
@@ -36,6 +28,21 @@ Choose a template to set up your first workspace. You can also [create your own 
 
 [**Workspaces**](https://coder.com/docs/v2/latest/workspaces): Workspaces contain the IDEs, dependencies, and configuration information needed for software development. You can create workspaces from templates. Here wea are showing the workspaces created from the Fly.io starter template in action.
 ![fly.io workspace](https://raw.githubusercontent.com/coder/blogs/main/posts/coder-on-railway/static/fly_workspace.png)
+
+## Optional
+
+### 1. Attach a custom domain
+
+Your Coder deployment will always be accessible at `https://app-name.onrender.com`. If you want to use a custom domain, you can go to Dashboard &gt; Coder (Service) &gt; Settings &gt; Custom Domains and add your domain and optionally a wildcard subdomain of form `*.coder.example.com`.
+
+### 2. Enable port-forwarding for workspace apps 
+
+Coder allows you to set an optional environment variable, `CODER_WILDCARD_ACCESS_URL` which lets you forward ports from your workspace to a custom wildcard subdomain of the URL you provide. This is useful if you want to access a service running in your workspace from a browser. For example, if you set `CODER_WILDCARD_ACCESS_URL` to `*.coder.example.com`, you can access a service running on port 8080 in your workspace by visiting `8080--app-name-workspace-name-.coder.example.com` in your browser.
+
+
+> Note: This is an optional step. If you do not set this variable, you cannot access services running in your workspace from a browser. You must use a custom domain with Render and cannot use Render's built-in domain for this wildcard.
+
+> Note: You can set environment variables by going to _Dashboard &gt; Coder (Service) &gt; Settings &gt; Environment &gt; Environment Variables_. See our [docs](https://coder.com/docs/v2/latest/cli/server) for more information on environment variables that can be set.
 
 - [**Coder on GitHub**](https://github.com/coder/coder)
 - [**Coder docs**](https://coder.com/docs/v2)
