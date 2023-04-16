@@ -2,14 +2,15 @@
     "name": "Coder",
     "description": "Your Self-Hosted Remote Development Platform",
     "website": "https://coder.com",
-    "repository": "https://github.com/matifali/coder-heroku",
+    "repository": "https://github.com/coder/packages",
     "logo": "https://raw.githubusercontent.com/coder/presskit/main/logos/coder_logo_black_square.png",
     "keywords": [ "remote", "development", "ide", "docker", "aws", "azure", "cloud", "kubernetes", "terraform" ],
     "formation": {
         "web": {
           "quantity": 1,
           "size": "basic"
-        },
+        }
+    },
     "success_url": "/setup",
     "addons": ["heroku-postgresql:mini"],
     "stack": "container",
@@ -17,4 +18,4 @@
         "CODER_TELEMETRY_INSTALL_SOURCE" : "heroku",
         "CODER_EXPERIMENTS" : "*"
     }
-  }
+}
