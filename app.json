@@ -15,7 +15,6 @@
     "addons": ["heroku-postgresql:mini"],
     "stack": "container",
     "env": {
-        "CODER_TELEMETRY_INSTALL_SOURCE" : "heroku",
-        "CODER_EXPERIMENTS" : "*"
+        "CODER_TELEMETRY_INSTALL_SOURCE" : "heroku"
     }
 }
