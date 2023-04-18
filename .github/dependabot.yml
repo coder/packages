@@ -4,3 +4,8 @@ updates:
     directory: "railway"
     schedule:
       interval: "daily"
+      
+  - package-ecosystem: "docker"
+    directory: "heroku"
+    schedule:
+      interval: "daily"
