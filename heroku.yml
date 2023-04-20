@@ -1,0 +1,5 @@
+build:
+  docker:
+    web: heroku/Dockerfile
+run:
+  web: /opt/coder server --http-address 0.0.0.0:$PORT --postgres-url $DATABASE_URL --access-url https://$HEROKU_APP_NAME.herokuapp.com
