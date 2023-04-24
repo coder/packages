@@ -1,4 +1,4 @@
-# Coder Servive
+# Coder Service
 services:
   - type: web
     name: coder
@@ -16,7 +16,7 @@ services:
           name: coder
           type: web
           property: host
-# Postgress Datbase
+# Postgres Database
 databases:
   - name: coder
     postgresMajorVersion: 15
