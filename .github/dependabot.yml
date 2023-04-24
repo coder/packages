@@ -9,3 +9,8 @@ updates:
     directory: "heroku"
     schedule:
       interval: "daily"
+  
+  - package-ecosystem: "docker"
+    directory: "render"
+    schedule:
+      interval: "daily"
