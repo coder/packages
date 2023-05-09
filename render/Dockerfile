@@ -1,4 +1,4 @@
-FROM ghcr.io/coder/coder:v0.23.1
+FROM ghcr.io/coder/coder:v0.23.2
 ARG RENDER_HOST
 ENV CODER_HTTP_ADDRESS=0.0.0.0:3000
 ENV CODER_ACCESS_URL=https://${RENDER_HOST}.onrender.com
