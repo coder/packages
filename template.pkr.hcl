@@ -28,26 +28,6 @@ variable "append_version" {
   default = ""
 }
 
-source "googlecompute" "ubuntu" {
-  project_id      = "coder-enterprise-market-public"
-  image_name      = "coder-v${local.gcp_version}${var.append_version}"
-  source_image_family = "ubuntu-2204-lts"
-  image_description = <<EOF
-  Coder v${local.gcp_version}${var.append_version}: Self-Hosted Remote Development Environments
-
-  Ubuntu 22.04 AMI with Coder pre-installed, Docker, and TLS public tunnel.
-
-  https://github.com/coder/packages
-  EOF
-  zone            = "us-east1-b"
-  machine_type    = "n2-standard-8"
-  ssh_username    = "ubuntu"
-  image_labels = {
-    name       = "coder"
-    os         = "ubuntu"
-  }
-}
-
 source "amazon-ebs" "ubuntu" {
   ami_name        = "coder-v${local.safe_version}${var.append_version}"
   ami_description = <<EOF
@@ -75,11 +55,32 @@ source "amazon-ebs" "ubuntu" {
   }
 }
 
+source "googlecompute" "ubuntu" {
+  project_id      = "coder-enterprise-market-public"
+  auth_f
+  image_name      = "coder-v${local.gcp_version}${var.append_version}"
+  source_image_family = "ubuntu-2204-lts"
+  image_description = <<EOF
+  Coder v${local.gcp_version}${var.append_version}: Self-Hosted Remote Development Environments
+
+  Ubuntu 22.04 AMI with Coder pre-installed, Docker, and TLS public tunnel.
+
+  https://github.com/coder/packages
+  EOF
+  zone            = "us-east1-b"
+  machine_type    = "n2-standard-8"
+  ssh_username    = "ubuntu"
+  image_labels = {
+    name       = "coder"
+    os         = "ubuntu"
+  }
+}
+
 build {
   name = "coder"
   sources = [
     "source.amazon-ebs.ubuntu",
-    "source.googlecompute.ubuntu"
+    // "source.googlecompute.ubuntu"
   ]
 
   provisioner "shell" {
