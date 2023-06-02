@@ -11,11 +11,6 @@ services:
         fromDatabase:
           name: coder
           property: connectionString
-      - key: RENDER_HOST
-        fromService:
-          name: coder
-          type: web
-          property: host
 # Postgres Database
 databases:
   - name: coder
