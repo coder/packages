@@ -21,7 +21,7 @@ aws ecr get-login-password \
      --region us-east-1 | helm registry login \
      --username AWS \
      --password-stdin 709825985650.dkr.ecr.us-east-1.amazonaws.com
-wget https://github.com/coder/coder/releases/download/v$SAFE_SAFE_VERSION/coder_helm_$SAFE_VERSION.tgz
+wget https://github.com/coder/coder/releases/download/v$SAFE_VERSION/coder_helm_$SAFE_VERSION.tgz
 tar -xvf coder_helm_$SAFE_VERSION.tgz
 # Replace coder.image.repo with $ECR_IMAGE_REPO
 sed -i 's|repo: "ghcr.io/coder/coder"|repo: "'"$ECR_IMAGE_REPO"'"|' "./coder/values.yaml"
