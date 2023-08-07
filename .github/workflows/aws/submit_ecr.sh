@@ -34,6 +34,6 @@ sed -i 's|repo: "ghcr.io/coder/coder"|repo: "'"$ECR_IMAGE_REPO"'"|' "./coder/val
 # Replace coder.image.tag with v$SAFE_VERSION
 sed -i 's|tag: ""|tag: "v'"$FULL_VERSION"'"|' "./coder/values.yaml"
 aws ecr get-login-password --region us-east-1 | helm registry login --username AWS --password-stdin 709825985650.dkr.ecr.us-east-1.amazonaws.com
-helm chart save ./coder 709825985650.dkr.ecr.us-east-1.amazonaws.com/coder/coderv2-marketplace:v$FULL_VERSION
-helm chart push 709825985650.dkr.ecr.us-east-1.amazonaws.com/coder/coderv2-marketplace:v$FULL_VERSION
+helm chart save ./coder 709825985650.dkr.ecr.us-east-1.amazonaws.com/coder/coderv2-marketplace-helm:v$FULL_VERSION
+helm chart push 709825985650.dkr.ecr.us-east-1.amazonaws.com/coder/coderv2-marketplace-helm:v$FULL_VERSION
 aws ecr describe-images --registry-id 709825985650 --repository-name coder/coderv2-marketplace --region us-east-1
