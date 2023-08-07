@@ -8,7 +8,7 @@ on:
         required: true
         default: "x.x.x"
       append_version:
-        description: 'Append version (e.g. ".1")'
+        description: 'Append version (e.g. "alpha")'
         default: ""
         required: false
 jobs:
