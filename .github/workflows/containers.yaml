@@ -57,22 +57,9 @@ jobs:
           docker pull ghcr.io/coder/coder:v${{ env.coder_version }}
           docker tag ghcr.io/coder/coder:v${{ env.coder_version }} $ecr_location
           docker push $ecr_location
-
-      - name: Login to Amazon ECR (Marketplace)
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
-      - name: Build, tag, and push docker image to Amazon ECR Private
-        env:
-          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_TAG: ${{ env.coder_version }}
-        run: |
-          ecr_location=709825985650.dkr.ecr.us-east-1.amazonaws.com/coderv2-marketplace:v${{ env.coder_version }}
-          docker pull ghcr.io/coder/coder:v${{ env.coder_version }}
-          docker tag ghcr.io/coder/coder:v${{ env.coder_version }} $ecr_location
-          docker push $ecr_location
       - uses: azure/setup-helm@v3
-      - name: Push Helm Chart
-        run: ./.github/workflows/aws/submit_helm.sh
+      - name: Push to ECR (Marketplace)
+        run: ./.github/workflows/aws/submit_ecr.sh
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
