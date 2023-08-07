@@ -10,7 +10,7 @@ SAFE_VERSION="${VERSION/v/""}"
 
 # Publish image
 aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 709825985650.dkr.ecr.us-east-1.amazonaws.com
-export ecr_location=ECR_IMAGE_REPO:v$SAFE_VERSION
+export ecr_location=$ECR_IMAGE_REPO:v$SAFE_VERSION
 docker pull ghcr.io/coder/coder:v$SAFE_VERSION
 docker tag ghcr.io/coder/coder:v$SAFE_VERSION $ecr_location
 docker push $ecr_location
