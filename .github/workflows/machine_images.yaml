@@ -39,8 +39,7 @@ jobs:
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v1
         with:
-          workload_identity_provider: projects/573722524737/locations/global/workloadIdentityPools/github/providers/github
-          service_account: packer@coder-enterprise-market-public.iam.gserviceaccount.com
+          credentials_json: "${{ secrets.GOOGLE_CREDENTIALS }}"
 
       - name: Setup `packer`
         uses: hashicorp/setup-packer@main
