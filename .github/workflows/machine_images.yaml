@@ -62,7 +62,6 @@ jobs:
       - name: Build Artifact
         run: |
           packer build \
-            -force \
             -var "coder_version=${{ env.PKR_VAR_coder_version }}" \
             ./template.pkr.hcl
         env:
