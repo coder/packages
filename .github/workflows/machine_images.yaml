@@ -40,7 +40,7 @@ jobs:
         uses: google-github-actions/auth@v1
         with:
           workload_identity_provider: projects/573722524737/locations/global/workloadIdentityPools/github/providers/github
-          service_account: coder-ci@coder-dogfood.iam.gserviceaccount.com
+          service_account: coder-packages-repo@coder-enterprise-market-public.iam.gserviceaccount.com
 
       - name: Set up Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
