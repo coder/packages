@@ -1,6 +1,6 @@
 ---
 Documentation for Railway Template for Coder
-https://railway.app/template/cUQ8_P?referralCode=tfH8Uw
+https://railway.app/template/coder?referralCode=tfH8Uw
 ---
 
 [Coder](https://coder.com) enables organizations to set up development environments in the cloud. Environments are defined with Terraform, connected through a secure high-speed Wireguard® tunnel, and are automatically shut down when not in use to save on costs. Coder gives engineering teams the flexibility to use the cloud for workloads that are most beneficial to them.
