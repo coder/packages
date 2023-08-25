@@ -4,12 +4,12 @@ on:
   workflow_dispatch:
     inputs:
       coder_version:
-        description: 'Coder Version'     
+        description: "Coder Version"
         required: true
-        default: 'x.x.x'
+        default: "x.x.x"
       append_version:
         description: 'Append version (e.g. ".1")'
-        default: ''
+        default: ""
         required: false
 
 jobs:
@@ -22,7 +22,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set packer variables (repository_dispatch)
         if: github.event_name == 'repository_dispatch'
@@ -35,6 +35,15 @@ jobs:
         run: |
           echo "PKR_VAR_coder_version=${{ github.event.inputs.coder_version }}" >> "$GITHUB_ENV"
           echo "PKR_VAR_append_version=${{ github.event.inputs.append_version }}" >> "$GITHUB_ENV"
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          workload_identity_provider: projects/573722524737/locations/global/workloadIdentityPools/github/providers/github
+          service_account: coder-ci@coder-dogfood.iam.gserviceaccount.com
+
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
 
       - name: Validate Template
         uses: hashicorp/packer-github-actions@master
@@ -55,7 +64,7 @@ jobs:
           command: build
           arguments: "-color=false -on-error=abort"
           target: template.pkr.hcl
-        env:          
+        env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
