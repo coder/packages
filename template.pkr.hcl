@@ -50,16 +50,16 @@ source "amazon-ebs" "ubuntu" {
   }
   ssh_username = "ubuntu"
   tags = {
-    name       = "Coder"
-    os         = "Ubuntu"
+    name = "Coder"
+    os   = "Ubuntu"
   }
 }
 
 source "googlecompute" "ubuntu" {
-  project_id      = "coder-enterprise-market-public"
-  image_name      = "coder-v${local.gcp_version}${var.append_version}"
+  project_id          = "coder-enterprise-market-public"
+  image_name          = "coder-v${local.gcp_version}${var.append_version}"
   source_image_family = "ubuntu-2204-lts"
-  image_licenses = ["projects/coder-enterprise-market-public/global/licenses/cloud-marketplace-83f16b4fa9cb1dff-df1ebeb69c0ba664"]
+  image_licenses      = ["projects/coder-enterprise-market-public/global/licenses/cloud-marketplace-83f16b4fa9cb1dff-df1ebeb69c0ba664"]
 
   image_description = <<EOF
   Coder v${local.gcp_version}${var.append_version}: Self-Hosted Remote Development Environments
@@ -68,12 +68,12 @@ source "googlecompute" "ubuntu" {
 
   https://github.com/coder/packages
   EOF
-  zone            = "us-east1-b"
-  machine_type    = "n2-standard-8"
-  ssh_username    = "ubuntu"
+  zone              = "us-east1-b"
+  machine_type      = "n2-standard-8"
+  ssh_username      = "ubuntu"
   image_labels = {
-    name       = "coder"
-    os         = "ubuntu"
+    name = "coder"
+    os   = "ubuntu"
   }
 }
 
