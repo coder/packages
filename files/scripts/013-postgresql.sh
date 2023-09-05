@@ -6,7 +6,7 @@ wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key a
 
 apt-get update -y
 
-apt-get install postgresql-14 -y
+apt-get install postgresql-15 -y
 
 sudo -u postgres psql <<EOF
 CREATE ROLE coder LOGIN SUPERUSER PASSWORD 'coder';

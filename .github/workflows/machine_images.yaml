@@ -4,12 +4,12 @@ on:
   workflow_dispatch:
     inputs:
       coder_version:
-        description: 'Coder Version'     
+        description: "Coder Version"
         required: true
-        default: 'x.x.x'
+        default: "x.x.x"
       append_version:
         description: 'Append version (e.g. ".1")'
-        default: ''
+        default: ""
         required: false
 
 jobs:
@@ -22,7 +22,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set packer variables (repository_dispatch)
         if: github.event_name == 'repository_dispatch'
@@ -36,26 +36,31 @@ jobs:
           echo "PKR_VAR_coder_version=${{ github.event.inputs.coder_version }}" >> "$GITHUB_ENV"
           echo "PKR_VAR_append_version=${{ github.event.inputs.append_version }}" >> "$GITHUB_ENV"
 
-      - name: Validate Template
-        uses: hashicorp/packer-github-actions@master
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v1
         with:
-          command: validate
-          arguments: -syntax-only
-          target: template.pkr.hcl
+          credentials_json: "${{ secrets.GOOGLE_CREDENTIALS }}"
 
-      - name: Install plugins
-        uses: hashicorp/packer-github-actions@master
+      - name: Setup `packer`
+        uses: hashicorp/setup-packer@main
+        id: setup
         with:
-          command: init
-          target: template.pkr.hcl
+          version: latest
+
+      - name: Run `packer init`
+        id: init
+        run: "packer init ./template.pkr.hcl"
+
+      - name: Run `packer validate`
+        id: validate
+        run: "packer validate ./template.pkr.hcl"
 
       - name: Build Artifact
-        uses: hashicorp/packer-github-actions@master
-        with:
-          command: build
-          arguments: "-color=false -on-error=abort"
-          target: template.pkr.hcl
-        env:          
+        run: |
+          packer build \
+            -var "coder_version=${{ env.PKR_VAR_coder_version }}" \
+            ./template.pkr.hcl
+        env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
@@ -68,3 +73,6 @@ jobs:
           VERSION: ${{ env.PKR_VAR_coder_version }}
           MARKETPLACE_ACCESS_ROLE_ARN: ${{ secrets.MARKETPLACE_ACCESS_ROLE_ARN }}
           PRODUCT_IDENTIFIER: ${{ secrets.PRODUCT_IDENTIFIER }}
+
+      - name: Submit image to GCP Marketplace
+        run: ./github/workflows/gcp/submit_image.sh
