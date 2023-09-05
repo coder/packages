@@ -76,5 +76,3 @@ jobs:
 
       - name: Submit image to GCP Marketplace
         run: ./github/workflows/gcp/submit_image.sh
-        env: 
-          VERSION: ${{ env.PKR_VAR_coder_version }}
