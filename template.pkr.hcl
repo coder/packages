@@ -19,10 +19,6 @@ local "safe_version" {
   expression = replace(var.coder_version, "v", "")
 }
 
-local "gcp_version" {
-  expression = replace(local.safe_version, ".", "-")
-}
-
 variable "append_version" {
   type    = string
   default = ""
@@ -57,12 +53,12 @@ source "amazon-ebs" "ubuntu" {
 
 source "googlecompute" "ubuntu" {
   project_id          = "coder-enterprise-market-public"
-  image_name          = "coder-v${local.gcp_version}${var.append_version}"
+  image_name          = "coder-v${replace(local.safe_version, ".", "-")}${replace(var.append_version, ".", "-")}"
   source_image_family = "ubuntu-2204-lts"
   image_licenses      = ["projects/coder-enterprise-market-public/global/licenses/cloud-marketplace-83f16b4fa9cb1dff-df1ebeb69c0ba664"]
 
   image_description = <<EOF
-  Coder v${local.gcp_version}${var.append_version}: Self-Hosted Remote Development Environments
+  Coder v${replace(local.safe_version, ".", "-")}${replace(var.append_version, ".", "-")}: Self-Hosted Remote Development Environments
 
   Ubuntu 22.04 AMI with Coder pre-installed, Docker, and TLS public tunnel.
 

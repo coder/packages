@@ -39,7 +39,8 @@ jobs:
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v1
         with:
-          credentials_json: "${{ secrets.GOOGLE_CREDENTIALS }}"
+          workload_identity_provider: projects/599002230295/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-oidc-provider
+          service_account: coder-packages-ci@coder-enterprise-market-public.iam.gserviceaccount.com
 
       - name: Setup `packer`
         uses: hashicorp/setup-packer@main
@@ -58,6 +59,7 @@ jobs:
       - name: Build Artifact
         run: |
           packer build \
+            -force \
             -var "coder_version=${{ env.PKR_VAR_coder_version }}" \
             ./template.pkr.hcl
         env:
@@ -66,6 +68,7 @@ jobs:
 
       - name: Submit AMI to AWS Marketplace
         run: ./.github/workflows/aws/submit_ami.sh
+        continue-on-error: true
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -75,4 +78,4 @@ jobs:
           PRODUCT_IDENTIFIER: ${{ secrets.PRODUCT_IDENTIFIER }}
 
       - name: Submit image to GCP Marketplace
-        run: ./github/workflows/gcp/submit_image.sh
+        run: ./.github/workflows/gcp/submit_image.sh
