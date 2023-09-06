@@ -14,7 +14,7 @@ on:
 jobs:
   eks_release:
     runs-on: ubuntu-latest
-    name: packer
+    name: eks_release
     permissions:
       contents: "read"
       id-token: "write"
@@ -34,7 +34,7 @@ jobs:
       - name: Set packer variables (workflow_dispatch)
         if: github.event_name == 'workflow_dispatch'
         run: |
-          unsafe_coder_version="${{ github.event.client_payload.coder_version }}"
+          unsafe_coder_version="${{ github.event.inputs.coder_version }}"
           safe_coder_version="${unsafe_coder_version/v/""}"
           echo "coder_version=$safe_coder_version" >> "$GITHUB_ENV"
           echo "append_version=${{ github.event.inputs.append_version }}" >> "$GITHUB_ENV"
@@ -51,22 +51,21 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v1
         with:
           registry-type: public
+          
       - name: Build, tag, and push docker image to Amazon ECR Public
         run: |
           ecr_location=public.ecr.aws/m2t7e1w5/coder-v2:v${{ env.coder_version }}
           docker pull ghcr.io/coder/coder:v${{ env.coder_version }}
-          docker tag ghcr.io/coder/coder:v0.16.0 $ecr_location
+          docker tag ghcr.io/coder/coder:v${{ env.coder_version }} $ecr_location
           docker push $ecr_location
 
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
+        
       - name: Build, tag, and push docker image to Amazon ECR Private
-        env:
-          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_TAG: ${{ env.coder_version }}
         run: |
-          ecr_location=816024705881.dkr.ecr.us-east-1.amazonaws.com/coder:v0.16.0
+          ecr_location=816024705881.dkr.ecr.us-east-1.amazonaws.com/coder:v${{ env.coder_version }}
           docker pull ghcr.io/coder/coder:v${{ env.coder_version }}
-          docker tag ghcr.io/coder/coder:v0.16.0 $ecr_location
+          docker tag ghcr.io/coder/coder:v${{ env.coder_version }} $ecr_location
           docker push $ecr_location
