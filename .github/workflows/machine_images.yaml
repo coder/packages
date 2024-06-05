@@ -66,16 +66,20 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-      - name: Submit AMI to AWS Marketplace
-        run: ./.github/workflows/aws/submit_ami.sh
-        continue-on-error: true
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: us-east-1
-          VERSION: ${{ env.PKR_VAR_coder_version }}
-          MARKETPLACE_ACCESS_ROLE_ARN: ${{ secrets.MARKETPLACE_ACCESS_ROLE_ARN }}
-          PRODUCT_IDENTIFIER: ${{ secrets.PRODUCT_IDENTIFIER }}
+      # Commented out until we have the listing on the new AWS account
+      #
+      # 06.05.24
+      # 
+      # - name: Submit AMI to AWS Marketplace
+      #   run: ./.github/workflows/aws/submit_ami.sh
+      #   continue-on-error: true
+      #   env:
+      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     AWS_DEFAULT_REGION: us-east-1
+      #     VERSION: ${{ env.PKR_VAR_coder_version }}
+      #     MARKETPLACE_ACCESS_ROLE_ARN: ${{ secrets.MARKETPLACE_ACCESS_ROLE_ARN }}
+      #     PRODUCT_IDENTIFIER: ${{ secrets.PRODUCT_IDENTIFIER }}
 
       - name: Submit image to GCP Marketplace
         run: ./.github/workflows/gcp/submit_image.sh
