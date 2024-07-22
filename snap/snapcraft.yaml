@@ -19,10 +19,14 @@ description: |
 grade: stable
 confinement: strict
 
+platforms:
+  amd64:
+  arm64:
+
 parts:
   coder:
     plugin: dump
-    source: https://github.com/coder/coder/releases/download/v$SNAPCRAFT_PROJECT_VERSION/coder_$SNAPCRAFT_PROJECT_VERSION_linux_$CRAFT_TARGET_ARCH.tar.gz
+    source: https://github.com/coder/coder/releases/download/v$SNAPCRAFT_PROJECT_VERSION/coder_$SNAPCRAFT_PROJECT_VERSION_linux_$CRAFT_ARCH_BUILD_FOR.tar.gz
 
 apps:
   coder:
@@ -32,4 +36,3 @@ apps:
       - home
       - network
       - network-bind
-      
