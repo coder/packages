@@ -52,10 +52,10 @@ source "amazon-ebs" "ubuntu" {
 }
 
 source "googlecompute" "ubuntu" {
-  project_id          = "coder-enterprise-market-public"
+  project_id          = "workspan-public-422119"
   image_name          = "coder-v${replace(local.safe_version, ".", "-")}${replace(var.append_version, ".", "-")}"
   source_image_family = "ubuntu-2204-lts"
-  image_licenses      = ["projects/coder-enterprise-market-public/global/licenses/cloud-marketplace-83f16b4fa9cb1dff-df1ebeb69c0ba664"]
+  # image_licenses      = ["projects/coder-enterprise-market-public/global/licenses/cloud-marketplace-83f16b4fa9cb1dff-df1ebeb69c0ba664"]
 
   image_description = <<EOF
   Coder v${replace(local.safe_version, ".", "-")}${replace(var.append_version, ".", "-")}: Self-Hosted Remote Development Environments
