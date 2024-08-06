@@ -1,0 +1,64 @@
+name: publish-snaps
+
+on:
+  workflow_dispatch:
+    inputs:
+      coder_version:
+        description: "Coder version"
+        required: true
+      release_channel:
+        description: "Release channel"
+        required: true
+        type: choice
+        options:
+          - stable
+          - mainline
+  repository_dispatch:
+    types: [coder-release]
+
+jobs:
+  build-and-publish:
+    runs-on: ${{ matrix.os }}
+    env:
+      SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_TOKEN }}
+    name: publish-snaps
+    strategy:
+      matrix:
+        os:
+          - depot-ubuntu-22.04
+          - depot-ubuntu-22.04-arm
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set metadata
+        id: metadata
+        run: |
+          if [[ "${{ github.event_name }}" == "repository_dispatch" ]]; then
+            echo "coder_version=${{ github.event.client_payload.coder_version }}" >> "$GITHUB_OUTPUT"
+            echo "release_channel=${{ github.event.client_payload.release_channel }}" >> "$GITHUB_OUTPUT"
+          elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "coder_version=${{ github.event.inputs.coder_version }}" >> "$GITHUB_OUTPUT"
+            echo "release_channel=${{ github.event.inputs.release_channel }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "Unknown event: ${{ github.event_name }}"
+            exit 1
+          fi
+
+      - name: Set version in snapcraft.yaml
+        run: |
+          sed -i "s/version: \".*\"/version: \"${{ steps.metadata.outputs.coder_version }}\"/" snap/snapcraft.yaml
+          git diff snap/snapcraft.yaml
+
+      - name: Setup Snapcraft
+        uses: samuelmeuli/action-snapcraft@v2
+
+      - name: Build and publish snaps
+        run: |
+          snapcraft build
+          if [[ ${{ steps.metadata.outputs.release_channel }} == "stable" ]]; then
+            snapcraft upload --release=latest/stable *.snap
+          else
+            snapcraft upload --release=latest/candidate,latest/beta,latest/edge *.snap
+          fi

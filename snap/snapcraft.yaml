@@ -2,8 +2,8 @@ name: coder
 title: Coder
 type: app
 base: core24
-version: '2.12.4'
-summary:  Self-Hosted Cloud Development Environments
+version: "2.13.1" # version is managed in .github/workflows/publish-snaps.yaml
+summary: Self-Hosted Cloud Development Environments
 license: AGPL-3.0
 contact: https://coder.com/contact
 issues: https://github.com/coder/coder/issues

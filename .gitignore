@@ -1,2 +1,4 @@
 .env
 packer-manifest.json
+# built snaps
+*.snap
