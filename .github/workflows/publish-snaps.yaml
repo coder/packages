@@ -19,8 +19,6 @@ on:
 jobs:
   build-and-publish:
     runs-on: ${{ matrix.os }}
-    env:
-      SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_TOKEN }}
     name: publish-snaps
     strategy:
       matrix:
@@ -37,10 +35,18 @@ jobs:
         run: |
           if [[ "${{ github.event_name }}" == "repository_dispatch" ]]; then
             echo "coder_version=${{ github.event.client_payload.coder_version }}" >> "$GITHUB_OUTPUT"
-            echo "release_channel=${{ github.event.client_payload.release_channel }}" >> "$GITHUB_OUTPUT"
+            if [[ ${{ github.event.client_payload.release_channel }} == "stable" ]]; then
+              echo "release_channel=stable" >> "$GITHUB_OUTPUT"
+            else
+              echo "release_channel=candidate,beta,edge" >> "$GITHUB_OUTPUT"
+            fi
           elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             echo "coder_version=${{ github.event.inputs.coder_version }}" >> "$GITHUB_OUTPUT"
-            echo "release_channel=${{ github.event.inputs.release_channel }}" >> "$GITHUB_OUTPUT"
+            if [[ ${{ github.event.inputs.release_channel }} == "stable" ]]; then
+              echo "release_channel=stable" >> "$GITHUB_OUTPUT"
+            else
+              echo "release_channel=candidate,beta,edge" >> "$GITHUB_OUTPUT"
+            fi
           else
             echo "Unknown event: ${{ github.event_name }}"
             exit 1
@@ -51,14 +57,12 @@ jobs:
           sed -i "s/version: \".*\"/version: \"${{ steps.metadata.outputs.coder_version }}\"/" snap/snapcraft.yaml
           git diff snap/snapcraft.yaml
 
-      - name: Setup Snapcraft
-        uses: samuelmeuli/action-snapcraft@v2
+      - uses: snapcore/action-build@v1
+        id: build
 
-      - name: Build and publish snaps
-        run: |
-          snapcraft build
-          if [[ ${{ steps.metadata.outputs.release_channel }} == "stable" ]]; then
-            snapcraft upload --release=latest/stable *.snap
-          else
-            snapcraft upload --release=latest/candidate,latest/beta,latest/edge *.snap
-          fi
+      - uses: snapcore/action-publish@v1
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_TOKEN }}
+        with:
+          snap: ${{ steps.build.outputs.snap }}
+          release: ${{ steps.metadata.outputs.release_channel }}
