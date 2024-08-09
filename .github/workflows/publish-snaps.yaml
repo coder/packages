@@ -38,7 +38,7 @@ jobs:
             if [[ "${{ github.event.client_payload.release_channel }}" == "stable" ]]; then
               echo "release_channel=stable" >> "$GITHUB_OUTPUT"
             else
-              echo "release_channel=candidate,beta,edge" >> "$GITHUB_OUTPUT"
+              echo "release_channel=candidate" >> "$GITHUB_OUTPUT"
             fi
           elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             echo "coder_version=${{ github.event.inputs.coder_version }}" >> "$GITHUB_OUTPUT"
