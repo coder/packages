@@ -35,14 +35,14 @@ jobs:
         run: |
           if [[ "${{ github.event_name }}" == "repository_dispatch" ]]; then
             echo "coder_version=${{ github.event.client_payload.coder_version }}" >> "$GITHUB_OUTPUT"
-            if [[ ${{ github.event.client_payload.release_channel }} == "stable" ]]; then
+            if [[ "${{ github.event.client_payload.release_channel }}" == "stable" ]]; then
               echo "release_channel=stable" >> "$GITHUB_OUTPUT"
             else
               echo "release_channel=candidate,beta,edge" >> "$GITHUB_OUTPUT"
             fi
           elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             echo "coder_version=${{ github.event.inputs.coder_version }}" >> "$GITHUB_OUTPUT"
-            if [[ ${{ github.event.inputs.release_channel }} == "stable" ]]; then
+            if [[ "${{ github.event.inputs.release_channel }}" == "stable" ]]; then
               echo "release_channel=stable" >> "$GITHUB_OUTPUT"
             else
               echo "release_channel=candidate,beta,edge" >> "$GITHUB_OUTPUT"
