@@ -45,7 +45,7 @@ jobs:
             if [[ "${{ github.event.inputs.release_channel }}" == "stable" ]]; then
               echo "release_channel=stable" >> "$GITHUB_OUTPUT"
             else
-              echo "release_channel=candidate,beta,edge" >> "$GITHUB_OUTPUT"
+              echo "release_channel=candidate" >> "$GITHUB_OUTPUT"
             fi
           else
             echo "Unknown event: ${{ github.event_name }}"
