@@ -74,8 +74,8 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: us-east-1
           VERSION: ${{ env.PKR_VAR_coder_version }}
-          MARKETPLACE_ACCESS_ROLE_ARN: ${{ secrets.MARKETPLACE_ACCESS_ROLE_ARN }}
-          PRODUCT_IDENTIFIER: ${{ secrets.PRODUCT_IDENTIFIER }}
+          MARKETPLACE_ACCESS_ROLE_ARN: ${{ secrets.AWS_MARKETPLACE_ACCESS_ROLE_ARN }}
+          PRODUCT_IDENTIFIER: ${{ secrets.AWS_PRODUCT_IDENTIFIER }}
 
       - name: Submit image to GCP Marketplace
         run: ./.github/workflows/gcp/submit_image.sh
