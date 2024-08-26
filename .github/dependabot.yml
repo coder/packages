@@ -1,16 +1,8 @@
 version: 2
 updates:
   - package-ecosystem: "docker"
-    directory: "railway"
-    schedule:
-      interval: "weekly"
-      
-  - package-ecosystem: "docker"
-    directory: "heroku"
-    schedule:
-      interval: "weekly"
-  
-  - package-ecosystem: "docker"
-    directory: "render"
+    directories:
+      - "heroku"
+      - "render"
     schedule:
       interval: "weekly"
