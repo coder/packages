@@ -55,7 +55,7 @@ source "googlecompute" "ubuntu" {
   project_id          = "workspan-public-422119"
   image_name          = "coder-v${replace(local.safe_version, ".", "-")}${replace(var.append_version, ".", "-")}"
   source_image_family = "ubuntu-2204-lts"
-  image_licenses      = ["projects/workspan-public-422119/global/licenses/cloud-marketplace-63b5cb22b2d503fb-df1ebeb69c0ba664"]
+  image_licenses      = ["projects/workspan-public-422119/global/licenses/cloud-marketplace-36ab41c326654b1b-df1ebeb69c0ba664"]
 
   image_description = <<EOF
   Coder v${replace(local.safe_version, ".", "-")}${replace(var.append_version, ".", "-")}: Self-Hosted Remote Development Environments
