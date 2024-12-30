@@ -59,10 +59,10 @@ jobs:
 
       - uses: snapcore/action-build@v1
         id: build
-        if: ${{ steps.metadata.outputs.release_channel == 'mainline' }}
+        if: ${{ steps.metadata.outputs.release_channel == 'candidate' }}
 
       - uses: snapcore/action-publish@v1
-        if: ${{ steps.metadata.outputs.release_channel == 'mainline' }}
+        if: ${{ steps.metadata.outputs.release_channel == 'candidate' }}
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_TOKEN }}
         with:
