@@ -6,3 +6,7 @@ updates:
       - "render"
     schedule:
       interval: "weekly"
+    groups:
+      coder-image:
+        patterns:
+          - "*"
