@@ -16,11 +16,6 @@
 #
 # ---------------------------------------------------------------------------
 
-if [ -z "$MARKETPLACE_ACCESS_ROLE_ARN" ]; then
-  echo "\$MARKETPLACE_ACCESS_ROLE_ARN not specified."
-  exit 1
-fi
-
 if [ -z "$VERSION" ]; then
   echo "\$VERSION not specified."
   exit 1

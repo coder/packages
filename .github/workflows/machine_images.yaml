@@ -87,7 +87,6 @@ jobs:
           ECR_ACCOUNT: ${{ secrets.ECR_ACCOUNT }}
           ECR_REPO: ${{ secrets.ECR_REPO }}
           VERSION: ${{ env.PKR_VAR_coder_version }}
-          MARKETPLACE_ACCESS_ROLE_ARN: ${{ secrets.AWS_MARKETPLACE_ACCESS_ROLE_ARN }}
           PRODUCT_IDENTIFIER: ${{ secrets.AWS_CE_PRODUCT_IDENTIFIER }}
 
       - name: Submit image to GCP Marketplace
