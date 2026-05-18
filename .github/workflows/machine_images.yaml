@@ -78,6 +78,9 @@ jobs:
           PRODUCT_IDENTIFIER: ${{ secrets.AWS_PRODUCT_IDENTIFIER }}
       
       - name: Submit image to AWS Marketplace CE
+        if: >-
+          github.event.client_payload.release_channel == 'stable'
+          || github.event_name == 'workflow_dispatch'
         run: ./.github/workflows/aws/submit_ce.sh
         continue-on-error: true
         env:

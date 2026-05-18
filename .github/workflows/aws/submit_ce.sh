@@ -47,6 +47,17 @@ echo "Product ID:     ${PRODUCT_ID}"
 echo "Image URI:      ${IMAGE_URI}"
 echo ""
 
+# --- Skip if already published ---
+if aws ecr describe-images \
+    --registry-id "${ECR_ACCOUNT}" \
+    --repository-name "${ECR_REPO}" \
+    --image-ids imageTag="${IMAGE_TAG}" \
+    --region "${ECR_REGION}" \
+    --output text > /dev/null 2>&1; then
+  echo "Image ${IMAGE_TAG} already exists in ECR. Skipping."
+  exit 0
+fi
+
 # --- Step 1: Pull and push image to ECR ---
 echo ">>> Pulling and pushing image to ECR..."
 # Pull the docker image from the GCR public registry 
