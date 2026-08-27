@@ -24,7 +24,8 @@ readonly IMAGE_REPO="ghcr.io/coder/coder"
 readonly PACK_NAME="coder-chart"
 readonly PACK_DISPLAY_NAME="Coder"
 
-readonly SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+readonly SCRIPT_DIR
 
 log()  { printf '  %s\n' "$*" >&2; }
 step() { printf '\n==> %s\n' "$*" >&2; }
