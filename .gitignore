@@ -2,3 +2,6 @@
 packer-manifest.json
 # built snaps
 *.snap
+
+# generated Spectro Cloud pack output
+build/
