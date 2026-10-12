@@ -1,0 +1,8 @@
+# Ownership for the Spectro Cloud Palette pack pipeline.
+#
+# Scoped deliberately to the Spectro paths only. This repository has no
+# repository-wide CODEOWNERS, so nothing else changes review routing here.
+# Maintainers should widen or replace this if they want general ownership.
+
+/scripts/spectro/                            @matifali @bpmct @greg-the-coder
+/.github/workflows/publish-spectro-pack.yaml @matifali @bpmct @greg-the-coder
