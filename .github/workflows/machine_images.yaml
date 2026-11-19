@@ -12,38 +12,64 @@ on:
         default: ""
         required: false
 
+permissions: {}
+
 jobs:
   packer_release:
     runs-on: ubuntu-latest
     name: packer
+    # AWS (CoderPackagesPublishRole) and GCP (coder-packages-ci) trust only this environment, which
+    # only main may use. coder/coder's approved release dispatches this workflow on main.
+    environment: publish
     permissions:
       contents: "read"
       id-token: "write"
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
 
       - name: Set packer variables (repository_dispatch)
         if: github.event_name == 'repository_dispatch'
+        env:
+          CODER_VERSION: ${{ github.event.client_payload.coder_version }}
+          APPEND_VERSION: ${{ github.event.client_payload.append_version }}
         run: |
-          echo "PKR_VAR_coder_version=${{ github.event.client_payload.coder_version }}" >> "$GITHUB_ENV"
-          echo "PKR_VAR_append_version=${{ github.event.client_payload.append_version }}" >> "$GITHUB_ENV"
+          echo "PKR_VAR_coder_version=${CODER_VERSION}" >> "$GITHUB_ENV"
+          echo "PKR_VAR_append_version=${APPEND_VERSION}" >> "$GITHUB_ENV"
 
       - name: Set packer variables (workflow_dispatch)
         if: github.event_name == 'workflow_dispatch'
+        env:
+          CODER_VERSION: ${{ github.event.inputs.coder_version }}
+          APPEND_VERSION: ${{ github.event.inputs.append_version }}
         run: |
-          echo "PKR_VAR_coder_version=${{ github.event.inputs.coder_version }}" >> "$GITHUB_ENV"
-          echo "PKR_VAR_append_version=${{ github.event.inputs.append_version }}" >> "$GITHUB_ENV"
+          echo "PKR_VAR_coder_version=${CODER_VERSION}" >> "$GITHUB_ENV"
+          echo "PKR_VAR_append_version=${APPEND_VERSION}" >> "$GITHUB_ENV"
+
+      - name: Check the version
+        run: |
+          [[ "$PKR_VAR_coder_version" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?$ ]] || { echo "::error::unexpected coder_version '$PKR_VAR_coder_version'"; exit 1; }
+          [[ "$PKR_VAR_append_version" =~ ^(\.[0-9]+)?$ ]] || { echo "::error::unexpected append_version '$PKR_VAR_append_version'"; exit 1; }
 
       - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v1
+        uses: google-github-actions/auth@b7593ed2efd1c1617e1b0254da33b86225adb2a5 # v2.1.12
         with:
           workload_identity_provider: projects/912981742393/locations/global/workloadIdentityPools/github/providers/my-repo
           service_account: coder-packages-ci@workspan-public-422119.iam.gserviceaccount.com
 
+      - name: Authenticate to AWS
+        uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a # v4.3.1
+        with:
+          role-to-assume: ${{ vars.AWS_PUBLISH_ROLE_ARN }}
+          role-session-name: coder-packages-${{ github.run_id }}
+          role-duration-seconds: 7200
+          aws-region: us-east-1
+
       - name: Setup `packer`
-        uses: hashicorp/setup-packer@main
+        uses: hashicorp/setup-packer@ce93c3c08a6c2ff2275bf4b54ff0d9a75f6c9789 # v3.4.0
         id: setup
         with:
           version: latest
@@ -60,23 +86,18 @@ jobs:
         run: |
           packer build \
             -force \
-            -var "coder_version=${{ env.PKR_VAR_coder_version }}" \
+            -var "coder_version=${PKR_VAR_coder_version}" \
             ./template.pkr.hcl
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      
+
       - name: Submit AMI to AWS Marketplace
         run: ./.github/workflows/aws/submit_ami.sh
         continue-on-error: true
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: us-east-1
           VERSION: ${{ env.PKR_VAR_coder_version }}
           MARKETPLACE_ACCESS_ROLE_ARN: ${{ secrets.AWS_MARKETPLACE_ACCESS_ROLE_ARN }}
           PRODUCT_IDENTIFIER: ${{ secrets.AWS_PRODUCT_IDENTIFIER }}
-      
+
       - name: Submit image to AWS Marketplace CE
         if: >-
           github.event.client_payload.release_channel == 'stable'
@@ -84,8 +105,6 @@ jobs:
         run: ./.github/workflows/aws/submit_ce.sh
         continue-on-error: true
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: us-east-1
           ECR_ACCOUNT: ${{ secrets.ECR_ACCOUNT }}
           ECR_REPO: ${{ secrets.ECR_REPO }}
