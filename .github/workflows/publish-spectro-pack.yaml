@@ -1,0 +1,295 @@
+name: publish-spectro-pack
+
+on:
+  repository_dispatch:
+    types: [coder-release]
+  workflow_dispatch:
+    inputs:
+      coder_version:
+        description: "Coder version"
+        required: true
+        default: "x.x.x"
+      dry_run:
+        description: "Build and validate the pack but do not push a branch or open a PR"
+        type: boolean
+        required: false
+        default: false
+  schedule:
+    # Weekly drift check. The publish job is skipped on this event.
+    - cron: "0 13 * * 1"
+
+permissions: {}
+
+env:
+  # Pinned tool versions. The generator script requires all of these on PATH.
+  HELM_VERSION: "v3.16.3"
+  YQ_VERSION: "v4.44.3"
+  JQ_VERSION: "1.7.1"
+  CRANE_VERSION: "v0.20.2"
+  PYTHON_VERSION: "3.12"
+  PYYAML_VERSION: "6.0.2"
+  PACK_CENTRAL_REPO: "spectrocloud/pack-central"
+  PACK_CENTRAL_BRANCH: "main"
+
+jobs:
+  publish-pack:
+    name: publish-spectro-pack
+    runs-on: ubuntu-latest
+    # Palette packs track stable only. coder/coder sends release_channel in the
+    # coder-release client_payload; manual dispatch is always allowed so a
+    # missed stable release can be backfilled.
+    if: >-
+      github.event.client_payload.release_channel == 'stable'
+      || github.event_name == 'workflow_dispatch'
+    permissions:
+      contents: "read"
+
+    steps:
+      - name: Resolve version
+        id: version
+        env:
+          DISPATCH_VERSION: ${{ github.event.client_payload.coder_version }}
+          INPUT_VERSION: ${{ github.event.inputs.coder_version }}
+        run: |
+          set -euo pipefail
+          if [[ "${GITHUB_EVENT_NAME}" == "repository_dispatch" ]]; then
+            unsafe_coder_version="${DISPATCH_VERSION}"
+          else
+            unsafe_coder_version="${INPUT_VERSION}"
+          fi
+          # The generator takes a bare semver, so drop any leading v.
+          coder_version="${unsafe_coder_version#v}"
+          if [[ ! "${coder_version}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Unusable version: ${unsafe_coder_version}"
+            exit 1
+          fi
+          echo "coder_version=${coder_version}" >> "$GITHUB_OUTPUT"
+          echo "branch=auto-release/coder-pack-${coder_version}" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          path: packages
+          persist-credentials: false
+
+      - name: Checkout pack-central
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.PACK_CENTRAL_REPO }}
+          ref: ${{ env.PACK_CENTRAL_BRANCH }}
+          path: pack-central
+          token: ${{ secrets.CDRCI_GITHUB_TOKEN }}
+          persist-credentials: false
+
+      - name: Check for existing work
+        id: guard
+        env:
+          GH_TOKEN: ${{ secrets.CDRCI_GITHUB_TOKEN }}
+          FORK_OWNER: ${{ vars.SPECTRO_FORK_OWNER || 'cdrci' }}
+          BRANCH: ${{ steps.version.outputs.branch }}
+          VERSION: ${{ steps.version.outputs.coder_version }}
+        run: |
+          set -euo pipefail
+          # Bail out before doing any work if the pack was already submitted.
+          open_prs="$(gh api -X GET "repos/${PACK_CENTRAL_REPO}/pulls" \
+            -f state=open -f "head=${FORK_OWNER}:${BRANCH}" --jq 'length')"
+          if [ "${open_prs}" -gt 0 ]; then
+            echo "Bailing out as PR already exists for ${FORK_OWNER}:${BRANCH}"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if gh api "repos/${PACK_CENTRAL_REPO}/contents/packs/coder-${VERSION}?ref=${PACK_CENTRAL_BRANCH}" >/dev/null 2>&1; then
+            echo "Bailing out as packs/coder-${VERSION} already exists on ${PACK_CENTRAL_BRANCH}"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+
+      - name: Setup `helm`
+        if: steps.guard.outputs.skip != 'true'
+        uses: azure/setup-helm@v4
+        with:
+          version: ${{ env.HELM_VERSION }}
+
+      - name: Setup `python`
+        if: steps.guard.outputs.skip != 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install `PyYAML`
+        if: steps.guard.outputs.skip != 'true'
+        run: python3 -m pip install --no-input "PyYAML==${PYYAML_VERSION}"
+
+      - name: Install `yq`, `jq` and `crane`
+        if: steps.guard.outputs.skip != 'true'
+        run: |
+          set -euxo pipefail
+          # No org-standard setup actions exist for these, so the download URLs
+          # are pinned by version instead.
+          mkdir -p "${RUNNER_TEMP}/bin"
+          curl -fsSL -o "${RUNNER_TEMP}/bin/yq" \
+            "https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_amd64"
+          curl -fsSL -o "${RUNNER_TEMP}/bin/jq" \
+            "https://github.com/jqlang/jq/releases/download/jq-${JQ_VERSION}/jq-linux-amd64"
+          curl -fsSL "https://github.com/google/go-containerregistry/releases/download/${CRANE_VERSION}/go-containerregistry_Linux_x86_64.tar.gz" \
+            | tar -xz -C "${RUNNER_TEMP}/bin" crane
+          chmod +x "${RUNNER_TEMP}/bin/yq" "${RUNNER_TEMP}/bin/jq" "${RUNNER_TEMP}/bin/crane"
+          echo "${RUNNER_TEMP}/bin" >> "$GITHUB_PATH"
+
+      - name: Build Spectro pack
+        if: steps.guard.outputs.skip != 'true'
+        working-directory: packages
+        env:
+          # The generator lifts logo.png and the validator scripts out of a
+          # pack-central checkout rather than vendoring them.
+          PACK_CENTRAL_DIR: ${{ github.workspace }}/pack-central
+          VERSION: ${{ steps.version.outputs.coder_version }}
+          OUTDIR: ${{ github.workspace }}/build/spectro
+        run: |
+          set -euxo pipefail
+          # The script performs chart digest verification, values structure
+          # checks, a helm template render and a crane manifest lookup, and
+          # exits non-zero if any of them fail.
+          ./scripts/spectro/build-pack.sh "${VERSION}" --outdir "${OUTDIR}"
+
+      - name: Upload pack artifact (if dry-run)
+        if: steps.guard.outputs.skip != 'true' && inputs.dry_run
+        uses: actions/upload-artifact@v4
+        with:
+          name: spectro-pack-coder-${{ steps.version.outputs.coder_version }}
+          path: ${{ github.workspace }}/build/spectro/packs/coder-${{ steps.version.outputs.coder_version }}
+          retention-days: 7
+
+      - name: Submit pack to pack-central
+        id: submit
+        if: steps.guard.outputs.skip != 'true' && !inputs.dry_run
+        env:
+          GH_TOKEN: ${{ secrets.CDRCI_GITHUB_TOKEN }}
+          FORK_OWNER: ${{ vars.SPECTRO_FORK_OWNER || 'cdrci' }}
+          BRANCH: ${{ steps.version.outputs.branch }}
+          VERSION: ${{ steps.version.outputs.coder_version }}
+          OUTDIR: ${{ github.workspace }}/build/spectro
+        run: |
+          set -euxo pipefail
+
+          # Setup Git
+          git config --global user.email "ci@coder.com"
+          git config --global user.name "Coder CI"
+          git config --global credential.helper "store"
+
+          # The fork can be many commits behind after weeks of no releases, so
+          # refresh it from upstream before branching.
+          gh repo sync "${FORK_OWNER}/pack-central" -b "${PACK_CENTRAL_BRANCH}"
+
+          # Set up cdrci credentials for pushing to the fork.
+          echo "https://x-access-token:${GH_TOKEN}@github.com" >> ~/.git-credentials
+
+          temp_dir="$(mktemp -d)"
+          git clone "https://github.com/${FORK_OWNER}/pack-central" "${temp_dir}/pack-central"
+          cd "${temp_dir}/pack-central"
+          git checkout -b "${BRANCH}"
+
+          cp -R "${OUTDIR}/packs/coder-${VERSION}" "packs/coder-${VERSION}"
+          git add "packs/coder-${VERSION}"
+          git commit -m "Upgrade coder pack to ${VERSION}"
+          git push -u origin -f "${BRANCH}"
+
+          # pack-summary.md is written by the generator and holds the upstream
+          # chart source and its verified sha256 digest.
+          {
+            echo "Automated pack update generated by the publish-spectro-pack workflow in coder/packages."
+            echo
+            cat "${OUTDIR}/pack-summary.md"
+            echo
+            echo "Offline validation that passed before this PR was opened:"
+            echo
+            echo "- chart digest verified against the helm.coder.com index.yaml entry"
+            echo "- validator/check-values-structure.py from this repository"
+            echo "- helm template render assertion on the packaged chart"
+            echo "- crane manifest lookup on the referenced image"
+            echo
+            echo "Palette tenant validation is not wired up yet, so this PR has not been imported into a tenant registry."
+          } > "${temp_dir}/pr-body.md"
+
+          pr_url="$(gh pr create \
+            --repo "${PACK_CENTRAL_REPO}" \
+            -B "${PACK_CENTRAL_BRANCH}" -H "${FORK_OWNER}:${BRANCH}" \
+            -t "Upgrade coder pack to ${VERSION}" \
+            -F "${temp_dir}/pr-body.md")"
+          echo "pr_url=${pr_url}" >> "$GITHUB_OUTPUT"
+
+      - name: Comment on PR
+        if: steps.submit.outcome == 'success' && steps.submit.outputs.pr_url != ''
+        env:
+          GH_TOKEN: ${{ secrets.CDRCI_GITHUB_TOKEN }}
+          PR_URL: ${{ steps.submit.outputs.pr_url }}
+          REVIEWERS: ${{ vars.SPECTRO_PACK_REVIEWERS }}
+        run: |
+          set -euo pipefail
+          if [ -z "${REVIEWERS}" ]; then
+            echo "SPECTRO_PACK_REVIEWERS is unset, skipping cc comment"
+            exit 0
+          fi
+          gh pr comment "${PR_URL}" --body "cc: ${REVIEWERS}"
+
+  drift-check:
+    name: spectro-pack-drift-check
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    permissions:
+      contents: "read"
+      issues: "write"
+
+    steps:
+      - name: Compare stable release with published pack
+        id: drift
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          # releases/latest returns the release flagged Latest, which for
+          # coder/coder is the stable release and not the newest tag. Reading
+          # tags instead would report mainline versions as drift.
+          stable="$(gh api repos/coder/coder/releases/latest --jq .tag_name)"
+          stable="${stable#v}"
+
+          published="$(gh api "repos/${PACK_CENTRAL_REPO}/contents/packs?ref=${PACK_CENTRAL_BRANCH}" \
+            --jq '.[] | select(.type == "dir") | .name' \
+            | grep '^coder-' | sed 's/^coder-//' | sort -V | tail -n1)"
+
+          echo "stable=${stable}" >> "$GITHUB_OUTPUT"
+          echo "published=${published:-none}" >> "$GITHUB_OUTPUT"
+
+          highest="$(printf '%s\n%s\n' "${stable}" "${published:-0.0.0}" | sort -V | tail -n1)"
+          if [ "${published:-0.0.0}" = "${stable}" ] || [ "${highest}" = "${published:-0.0.0}" ]; then
+            echo "behind=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "behind=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Open or update tracking issue
+        if: steps.drift.outputs.behind == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          STABLE: ${{ steps.drift.outputs.stable }}
+          PUBLISHED: ${{ steps.drift.outputs.published }}
+        run: |
+          set -euo pipefail
+          title="Spectro Cloud pack is behind the stable Coder release"
+          body="$(printf '%s\n\n%s\n\n%s\n' \
+            "Stable Coder release: ${STABLE}" \
+            "Highest pack on ${PACK_CENTRAL_REPO} ${PACK_CENTRAL_BRANCH}: ${PUBLISHED}" \
+            "Run the publish-spectro-pack workflow manually with coder_version ${STABLE} to backfill, then investigate why the coder-release dispatch did not produce a PR.")"
+
+          # One rolling issue per drift condition, refreshed with a comment so
+          # the weekly run does not create duplicates.
+          existing="$(gh issue list --repo "${GITHUB_REPOSITORY}" --state open \
+            --search "\"${title}\" in:title" --json number,title \
+            --jq "[.[] | select(.title == \"${title}\")] | .[0].number // empty")"
+
+          if [ -n "${existing}" ]; then
+            gh issue comment "${existing}" --repo "${GITHUB_REPOSITORY}" --body "${body}"
+          else
+            gh issue create --repo "${GITHUB_REPOSITORY}" --title "${title}" --body "${body}"
+          fi
